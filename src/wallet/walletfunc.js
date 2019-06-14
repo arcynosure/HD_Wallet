@@ -4,10 +4,10 @@ const ethereumjsUtil = require('ethereumjs-util');
 const bs58check = require('bs58check');
 const wif = require('wif');
 const bchaddrjs = require('bchaddrjs');
-const web3 = require('web3');
+const Web3 = require('web3');
 const createHash = require('create-hash');
 const Buffer = require('buffer');
-
+let web3 = new Web3(new Web3.providers.HttpProvider("https://mainnet.infura.io/v3/79931628a2fd40329ae0e7e6132df909"));
 function generate() {
     const mnemonic = bip39.generateMnemonic();
     console.log(mnemonic);
@@ -86,10 +86,51 @@ function generate() {
 }
 
 function sendEth() {
-    return 'sending';
+    let balance = web3.eth.getBalance('');
+    if ($('#ethamount').val() > balance) {
+        //false
+    }
+    var gas = await ethGas();
+    var privateKey = new Buffer(await decryptdata(), "hex");
+    const rawTransaction = {
+        to: toAccount,
+        value: web3.toHex(web3.toWei($('#ethamount').val(), "ether")),
+        gasPrice: web3.toHex(gas.price),
+        gasLimit: web3.toHex(21000),
+        chainId: 1,
+        nonce: nonce.nonce
+    };
+
+    var tx = new ethereumjs.Tx(rawTx);
+    tx.sign(privateKey);
+    var serializedTx = tx.serialize();
+    console.log(serializedTx);
+
+
+
+
 }
+
+async function ethGas() {  
+    
+  return new Promise(async (resolve, reject) => {  
+        web3.eth.getBlock("latest", false,async(err,data)=>{
+          if(err) console.log(err);
+          fetch("https://ethgasstation.info/json/ethgasAPI.json")
+          .then(res =>res.json())
+          .then((result)=>{
+            resolve({limit:data.gasLimit,price:result.fastest});
+          })
+          .then((error)=>{
+
+          })
+          
+      });
+    });
+  }
 
 export {
     generate,
-    sendEth
+    sendEth,
+    ethGas
 }

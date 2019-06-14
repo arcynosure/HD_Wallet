@@ -1,10 +1,13 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {generate,sendEth} from './wallet/walletfunc';
+import {ethGas} from './wallet/walletfunc';
 function App() {
-  generate();
-  console.log(sendEth());
+  // generate();
+  async function ethGas1(){
+  console.log(await ethGas());
+  }
+  ethGas1();
   return (
     <div className="App">
       <header className="App-header">
