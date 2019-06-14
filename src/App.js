@@ -1,8 +1,10 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-
+import {generate,sendEth} from './wallet/walletfunc';
 function App() {
+  generate();
+  console.log(sendEth());
   return (
     <div className="App">
       <header className="App-header">
