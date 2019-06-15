@@ -1,6 +1,7 @@
 const bip39 = require('bip39');
 const hdkey = require('hdkey');
-const ethereumjsUtil = require('ethereumjs-util');
+const ethereumjs = require('ethereumjs-util');
+const Tx = require('ethereumjs-tx');
 const bs58check = require('bs58check');
 const wif = require('wif');
 const bchaddrjs = require('bchaddrjs');
@@ -15,16 +16,16 @@ function generate() {
     const root = hdkey.fromMasterSeed(seed); //create root from seed
     const masterPrivateKey = root.privateKey.toString("hex"); //create master private key
     console.log(masterPrivateKey);
-    const masterPubKey = root.publicKey.toString("hex"); //create master public key
+    // const masterPubKey = root.publicKey.toString("hex"); //create master public key
     let path = "m/44'/60'/0'/0/0"; //defining derivation path
     const addrNode = root.derive(path);
-    const pubKey = ethereumjsUtil.privateToPublic(addrNode._privateKey); //Public key as hex
+    const pubKey = ethereumjs.privateToPublic(addrNode._privateKey); //Public key as hex
     console.log(pubKey + " Pub");
-    const addr = ethereumjsUtil.publicToAddress(pubKey).toString("hex"); //Create wallet address
-    const address = ethereumjsUtil.toChecksumAddress(addr);
+    const addr = ethereumjs.publicToAddress(pubKey).toString("hex"); //Create wallet address
+    const address = ethereumjs.toChecksumAddress(addr);
     console.log(address + " address");
     let privateKeys = addrNode._privateKey.toString("hex"); //Private key
-    privateKeys = ethereumjsUtil.toChecksumAddress(privateKeys);
+    privateKeys = ethereumjs.toChecksumAddress(privateKeys);
     console.log(privateKeys);
 
 
@@ -57,7 +58,7 @@ function generate() {
     console.log("addrnodePublicKey: " + addrnode._publicKey.toString("hex"));
     console.log("addrnodePrivateKey: " + addrnode._privateKey.toString("hex"));
 
-    const pubKEy = addrnode._publicKey;
+    // const pubKEy = addrnode._publicKey;
     const pubHash = createHash("sha256")
         .update(pubKey)
         .digest();
@@ -75,9 +76,9 @@ function generate() {
 
     var toCashAddress = bchaddrjs.toCashAddress;
     const adr = toCashAddress(Addr);
-    let Address;
     console.log(adr.substr(0, 12) + " " + adr.substr(12, adr.length));
-    if (adr.substr(0, 12) == "bitcoincash:") {
+    let Address;
+    if (adr.substr(0, 12) === "bitcoincash:") {
         Address = adr.substr(12, adr.length);
     } else {
         Address = adr;
@@ -85,30 +86,38 @@ function generate() {
 
 }
 
-function sendEth() {
-    let balance = web3.eth.getBalance('');
-    if ($('#ethamount').val() > balance) {
+async function sendEth(amount,toAccount) {
+    let balance = await getEthBalance();
+    if (parseFloat(amount) > balance) {
         //false
+        console.log('Insufficient balance');
     }
     var gas = await ethGas();
-    var privateKey = new Buffer(await decryptdata(), "hex");
-    const rawTransaction = {
+    var privateKey = Buffer.Buffer('8BC3031B7228262df3C0608Da2eA4B039EB1EBf1A50CB5D40c3F4717c54B5940',"hex");
+    let nonce = 25;
+    const rawTx = {
         to: toAccount,
-        value: web3.toHex(web3.toWei($('#ethamount').val(), "ether")),
-        gasPrice: web3.toHex(gas.price),
-        gasLimit: web3.toHex(21000),
+        value: web3.utils.toHex(web3.utils.toWei(amount, "ether")),
+        gasPrice: web3.utils.toHex(gas.price),
+        gasLimit: web3.utils.toHex(21000),
         chainId: 1,
-        nonce: nonce.nonce
+        nonce: web3.utils.toHex(nonce)
     };
-
-    var tx = new ethereumjs.Tx(rawTx);
+    
+    var tx = new Tx(rawTx);
     tx.sign(privateKey);
     var serializedTx = tx.serialize();
     console.log(serializedTx);
 
+}
 
-
-
+function getEthBalance(){
+    return new Promise(async (resolve, reject) => {  
+        web3.eth.getBalance('0xc44B600EaE5a7C12146459182a0D1e039BEa89fa',function(err,balance){
+        console.log(web3.utils.fromWei(balance.toString(),'ether'));
+        resolve(web3.utils.fromWei(balance.toString(),'ether'));
+        });
+    });
 }
 
 async function ethGas() {  
@@ -132,5 +141,6 @@ async function ethGas() {
 export {
     generate,
     sendEth,
-    ethGas
+    ethGas,
+    getEthBalance
 }
