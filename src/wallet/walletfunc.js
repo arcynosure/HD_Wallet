@@ -107,7 +107,9 @@ async function sendEth(amount,toAccount) {
     var tx = new Tx(rawTx);
     tx.sign(privateKey);
     var serializedTx = tx.serialize();
-    console.log(serializedTx);
+    // console.log(serializedTx);
+    let newSerializedTx = buf2hex(serializedTx);
+    console.log(newSerializedTx);
 
 }
 
