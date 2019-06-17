@@ -1,9 +1,9 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {generate,sendEth,ethGas,getEthBalance} from './wallet/walletfunc';
+import {generate,sendEth,ethGas,getEthBalance, getBtcBalance} from './wallet/walletfunc';
 function App() {
-  sendEth('0.0016','0x7b1d821e3838D3128c0b06D0Ed54b1908Af7CC21');
+  console.log(getBtcBalance('mwjHY5N9x5GjxfvCLW3bvuvdixfwQ3nmtc'));
   return (
     <div className="App">
       <header className="App-header">
